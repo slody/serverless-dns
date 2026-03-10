@@ -45,7 +45,7 @@ on:
 
 env:
   DEPLOY_MODE: 'action'
-  PROJECT_NAME: ${{ secrets.DENO_PROJECT_NAME || 'rdns' }}
+  PROJECT_NAME: ${{ secrets.DENO_PROJECT_NAME }}
   BUILD_BRANCH: >
     ${{ github.event_name == 'workflow_dispatch' &&
       github.event.inputs.deployment-type == 'live' &&
@@ -72,6 +72,10 @@ jobs:
       - name: 🏝 Setup env
         shell: bash
         run: |
+          if [ -z "${PROJECT_NAME}" ]; then
+            echo "::error::Missing DENO_PROJECT_NAME secret. Set it to your Deno Deploy app slug."
+            exit 1
+          fi
           echo "DEPLOY_MODE=${DM}" >> $GITHUB_ENV
           echo "::notice::deploy mode: $DM, project: $PROJECT_NAME"
         env:
